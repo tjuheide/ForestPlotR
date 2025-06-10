@@ -9,6 +9,8 @@ This website is a small collection of forest plots made in `R` using the `forest
 
 Readers are advised to start walking through [A simple forest plot](OneSimplePlot.qmd) before looking into the slightly more advanced examples.
 
+The data used for these plots can be found [here](https://github.com/tjuheide/ForestPlotR/tree/main/data)
+
 ### The plots
 
 The website provides the code necessary to construct the following plots. Please be advised that the chosen colors are not necessarily good, and the reader is encouraged to select colors in a sensible way. The default alternating grey/white colors for stripes with black used in the actual plot is often perfectly fine to use.
