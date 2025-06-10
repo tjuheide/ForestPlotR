@@ -4938,11 +4938,11 @@ Figure 1: Rough outline of a forest plot
 </div>
 </div>
 </div>
-<p>Clearly there is still some work to be done, but before we do that let’s consider what <code>forest</code> does. Think of the output as a table with 4 columns: first the labels, then the risk estimates in exposure groups 1 and 2, then a column with no data. It is into this last column we insert the forest plot. Going through the parameters:</p>
+<p>Clearly there is still some work to be done, but before we do that let’s consider what <code>forest</code> does. Think of the output as a table with 4 columns: first the labels, then the risk estimates in exposure groups 1 and 2, then a column with no data. It is into this last column we have inserted the forest plot. Going through the parameters:</p>
 <ul>
 <li><code>data</code>: here we specify the data we want to use. Notice that we pick a subset of our data set <code>results</code> to be used by writing <code>[,c(1,4,7,11)]</code> after <code>results</code>. Specifically, we use all rows from the data (there is nothing between <code>[</code> and the first comma), and then we pick the 1st, 4th, 7th and 11th columns in the order they appear in <code>results</code>. The 11th column is the <code>blank</code> column we created above.</li>
 <li><code>est</code>, <code>lower</code>, and <code>upper</code>: specify the variables used to plot the point estimate and confidence interval.</li>
-<li><code>ci_column</code>: here we specify into which of the columns included in <code>data</code> the plot should be inserted.</li>
+<li><code>ci_column</code>: here we specify into which column the plot should be inserted. Here, <code>ci_column = 4</code> refers to the fact that four columns [<code>c(1,4,7,11)</code>] are selected from the data and that plot should be inserted into the last of those listed, i.e., column number 11 from the data.</li>
 <li><code>ref_line</code>: inserts a vertical reference line at the specified value.</li>
 <li><code>xlim</code> and <code>ticks_at</code>: specify the range of the axis used in the plot, and where there should be tick marks.</li>
 </ul>
@@ -5031,7 +5031,7 @@ Figure 3: Plot with added padding
 </section>
 <section id="column-headers" class="level3">
 <h3 class="anchored" data-anchor-id="column-headers">Column headers</h3>
-<p>This looks exceptionally stupid. <a href="#fig-fp3" class="quarto-xref">Figure 3</a> holds all the data we want to include but the <code>smallblank</code>-columns take up way too much space. However, editing the column headers will help this this. We will edit these by naming the columns (variables) of the data set <code>results</code>:</p>
+<p>This looks exceptionally stupid. <a href="#fig-fp3" class="quarto-xref">Figure 3</a> holds all the data we want to include but the <code>smallblank</code>-columns take up way too much space. However, editing the column headers will help with this. We will edit these by naming the columns (variables) of the data set <code>results</code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(results) <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Group&quot;</span>,</span>
@@ -5047,8 +5047,8 @@ Figure 3: Plot with added padding
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;&quot;</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Notice how we shamelessly use the same, sometime empty, name for several groups of columns. This is intentional.</p>
-<p>If we once again run the <code>forest</code> function on this data we get <a href="#fig-fp4" class="quarto-xref">Figure 4</a>.</p>
+<p>Notice how we shamelessly use the same, sometime empty, name for several columns. This is intentional.</p>
+<p>If we once again run the <code>forest</code> function on these data we get <a href="#fig-fp4" class="quarto-xref">Figure 4</a>.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-fp4" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -5068,47 +5068,46 @@ Figure 4: Plot with custom headers
 <h3 class="anchored" data-anchor-id="further-headers">Further headers</h3>
 <section id="exposure-group-headers" class="level4">
 <h4 class="anchored" data-anchor-id="exposure-group-headers">Exposure group headers</h4>
-<p>In <a href="#fig-fp4" class="quarto-xref">Figure 4</a> we can’t tell which columns refer to which exposure group. We can make that clear by first making the plot into an object we can manipulate, specifically we want to add additional headers spanning several columns. We also add a line between data and headers for each exposure group - this is probably not strictly necessary in this situation, but it can be helpful to guide the eye.</p>
+<p>In <a href="#fig-fp4" class="quarto-xref">Figure 4</a> we can’t tell which columns refer to which exposure group. We can make that clear by manipulating the plot <code>p</code> using the functions <code>add_text</code> and <code>add_border</code> from the <code>forestploter</code> package. Specifically, we want to add additional headers spanning several columns. We also add a line between data and headers for each exposure group - this is probably not strictly necessary in this situation, but it can be helpful to guide the eye.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make the plot into an object that can be edited using functions from the forestploter package</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">forest</span>(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> results[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">11</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">11</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">11</span>,<span class="dv">6</span>,<span class="dv">10</span>)],</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">est =</span> results<span class="sc">$</span>rr,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> results<span class="sc">$</span>lcl,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> results<span class="sc">$</span>ucl,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_column =</span> <span class="dv">10</span>,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">ref_line =</span> <span class="dv">1</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">1.5</span>),</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ticks_at =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># we add a header for the intervention and exposure groups</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Intervention group&quot;</span>,</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>,</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Control group&quot;</span>,</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">7</span>,</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="co"># we add a line between the header and the data for both exposure groups</span></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_border</span>(</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;body&quot;</span>,</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">lwd =</span> .<span class="dv">5</span>), <span class="co">#line width</span></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">7</span>)</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">forest</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> results[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">11</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">11</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">11</span>,<span class="dv">6</span>,<span class="dv">10</span>)],</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">est =</span> results<span class="sc">$</span>rr,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> results<span class="sc">$</span>lcl,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> results<span class="sc">$</span>ucl,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_column =</span> <span class="dv">10</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ref_line =</span> <span class="dv">1</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">1.5</span>),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ticks_at =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># we add a header for the intervention- and exposure groups</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Intervention group&quot;</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>, <span class="co"># the text should be across these columns</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>, <span class="co"># ... and in this row</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>) <span class="co"># style of the text - see documentation of gpar for further details</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Control group&quot;</span>,</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">7</span>,</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="co"># we add a line between the header and the data for both exposure groups</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_border</span>(</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;body&quot;</span>,</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">lwd =</span> .<span class="dv">5</span>), <span class="co"># line width</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">7</span>)</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
@@ -5158,9 +5157,9 @@ Figure 6: Plot with header for risk ratios
 <h3 class="anchored" data-anchor-id="finishing-touches">Finishing touches</h3>
 <p>There are still several things that would improve the plot. In the following we</p>
 <ul>
-<li>center align columns with numbers,</li>
+<li>center-align columns containing numbers,</li>
 <li>make labels without indentation bold face,</li>
-<li>finally we specify a theme using <code>theme_forest</code> to modify general aspects of the plot.</li>
+<li>specify a theme using <code>theme_forest</code> to modify general aspects of the plot (next code chunk).</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># center aligning the numbers (body) in the plot</span></span>
@@ -5193,7 +5192,7 @@ Figure 6: Plot with header for risk ratios
 <span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>)</span>
 <span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The theme is something that needs to be added when running <code>forest</code> meaning this should be done at the top of the script. Here is the entire script necessary to make <a href="#fig-fp7" class="quarto-xref">Figure 7</a>:</p>
+<p>The theme is something that needs to be added when running <code>forest</code> meaning this should be done at the top of the script. Here is the entire script necessary to make <a href="#fig-fp7" class="quarto-xref">Figure 7</a>, once the data has been set up:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># specifying the theme</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>tm <span class="ot">&lt;-</span> <span class="fu">forest_theme</span>(</span>
@@ -5215,7 +5214,7 @@ Figure 6: Plot with header for risk ratios
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">ref_line =</span> <span class="dv">1</span>,</span>
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">1.5</span>),</span>
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">ticks_at =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>),</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">theme =</span> tm <span class="co"># use the customized theme</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">theme =</span> tm <span class="co"># use the custom theme</span></span>
 <span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co"># add headers</span></span>

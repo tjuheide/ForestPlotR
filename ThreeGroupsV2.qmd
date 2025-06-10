@@ -12,11 +12,11 @@ execute:
   warning: false
 ---
 ### Setting
-Here is an example of a forest plot containing combined results of risk ratios for a comparison of three exposure groups (high dose, low dose, control, say) from a hypothetical study. The data are equivalent to those presented [here](ThreeGroupsV1.qmd) but shaped differently. Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) walk through before moving forwards.
+Here is an example of a forest plot containing combined results of risk ratios for a comparison of three exposure groups (high dose, low dose, control, say) from a hypothetical study. These data are in wide format, there is also a version in [long format](ThreeGroupsV1.qmd). Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) before continuing.
 
 ### Data
 
-This version of the data is in wide format, meaning each exposure group contributes with a set of columns/variables.
+This version of the data is in wide format, meaning each exposure group contributes with a set of columns/variables rather than rows/observations.
 
 
 ```{r}
@@ -38,15 +38,20 @@ round2 <- function(x) format(round(x,digits = 2), nsmall = 2, scientific = FALSE
 
 results <- results |>
   mutate(
+    # events / Number at risk
     en1 = case_when(is.na(events1) ~ "", .default = paste(events1, "/", n1)),
     en2 = case_when(is.na(events2) ~ "", .default = paste(events2, "/", n2)),
     en0 = case_when(is.na(events0) ~ "", .default = paste(events0, "/", n0)),
+    
+    # text variable with risk ratios
     riskratio1 = case_when(
       is.na(events1) ~ "",
       .default = paste0(round2(rr1), " (", round2(lcl1), " - ", round2(ucl1), ")")),
     riskratio2 = case_when(
       is.na(events2) ~ "",
       .default = paste0(round2(rr2), " (", round2(lcl2), " - ", round2(ucl2), ")")),
+    
+    # some indentation of some labels
     level = case_when(is.na(events1) | level == "Overall" ~ level, .default = paste(" ", level))
   ) |>
   # since there will be many columns, estimates of absolute risks are suppressed
@@ -56,6 +61,7 @@ results <- results |>
 results$blank <- "                          "
 results$smallblank <- " "
 
+# forcing some line breaks in column headers using \n
 colnames(results) <- c(
   "Group",
   "Low dose\nEvents / N",
@@ -101,10 +107,18 @@ tm <- forest_theme(
   base_size = 15,
   ci_pch = 19,
   ci_lwd = 3,
-  ci_col = c("#56B4E9","#001d6d"), # we specify 2 colors, one for each comparison,
-  legend_name = "", # title on legend - set to missing
-  legend_value = c("Low dose", "High dose"), # labels to be used for the two comparisons
-  legend_position = "bottom", # place the legend below the plot
+  
+  # a color for each comparison to be used for point estimates and 95% CIs
+  ci_col = c("#56B4E9","#001d6d"),
+  
+  # title in legend - set to missing
+  legend_name = "",
+  
+  # labels to be used for the two comparisons, notice the space included to add some distance between labels
+  legend_value = c("Low dose ", "High dose"),
+  
+  # place the legend below the plot
+  legend_position = "bottom",
   refline_gp = gpar(col = "grey"),
   core = list(bg_params = list(fill = c("#e2f0fb",
                                         "white")))

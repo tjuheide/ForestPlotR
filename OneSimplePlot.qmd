@@ -64,11 +64,11 @@ forest(
 )
 ```
 
-Clearly there is still some work to be done, but before we do that let's consider what `forest` does. Think of the output as a table with 4 columns: first the labels, then the risk estimates in exposure groups 1 and 2, then a column with no data. It is into this last column we insert the forest plot. Going through the parameters:
+Clearly there is still some work to be done, but before we do that let's consider what `forest` does. Think of the output as a table with 4 columns: first the labels, then the risk estimates in exposure groups 1 and 2, then a column with no data. It is into this last column we have inserted the forest plot. Going through the parameters:
 
 -   `data`: here we specify the data we want to use. Notice that we pick a subset of our data set `results` to be used by writing `[,c(1,4,7,11)]` after `results`. Specifically, we use all rows from the data (there is nothing between `[` and the first comma), and then we pick the 1st, 4th, 7th and 11th columns in the order they appear in `results`. The 11th column is the `blank` column we created above.
 -   `est`, `lower`, and `upper`: specify the variables used to plot the point estimate and confidence interval.
--   `ci_column`: here we specify into which of the columns included in `data` the plot should be inserted.
+-   `ci_column`: here we specify into which column the plot should be inserted. Here, `ci_column = 4` refers to the fact that four columns [`c(1,4,7,11)`] are selected from the data and that plot should be inserted into the last of those listed, i.e., column number 11 from the data.
 -   `ref_line`: inserts a vertical reference line at the specified value.
 -   `xlim` and `ticks_at`: specify the range of the axis used in the plot, and where there should be tick marks.
 
@@ -171,7 +171,7 @@ magick::image_read("./figs/simpleplot3.png") |>
 
 ### Column headers
 
-This looks exceptionally stupid. @fig-fp3 holds all the data we want to include but the `smallblank`-columns take up way too much space. However, editing the column headers will help this this. We will edit these by naming the columns (variables) of the data set `results`:
+This looks exceptionally stupid. @fig-fp3 holds all the data we want to include but the `smallblank`-columns take up way too much space. However, editing the column headers will help with this. We will edit these by naming the columns (variables) of the data set `results`:
 
 ```{r}
 colnames(results) <- c(
@@ -189,9 +189,9 @@ colnames(results) <- c(
 )
 ```
 
-Notice how we shamelessly use the same, sometime empty, name for several groups of columns. This is intentional.
+Notice how we shamelessly use the same, sometime empty, name for several columns. This is intentional.
 
-If we once again run the `forest` function on this data we get @fig-fp4.
+If we once again run the `forest` function on these data we get @fig-fp4.
 
 ```{r, echo = FALSE}
 #| label: fig-fp4
@@ -226,10 +226,9 @@ magick::image_read("./figs/simpleplot4.png") |>
 
 #### Exposure group headers
 
-In @fig-fp4 we can't tell which columns refer to which exposure group. We can make that clear by first making the plot into an object we can manipulate, specifically we want to add additional headers spanning several columns. We also add a line between data and headers for each exposure group - this is probably not strictly necessary in this situation, but it can be helpful to guide the eye.
+In @fig-fp4 we can't tell which columns refer to which exposure group. We can make that clear by manipulating the plot `p` using the functions `add_text` and `add_border` from the `forestploter` package. Specifically, we want to add additional headers spanning several columns. We also add a line between data and headers for each exposure group - this is probably not strictly necessary in this situation, but it can be helpful to guide the eye.
 
 ```{r}
-# make the plot into an object that can be edited using functions from the forestploter package
 p <- forest(
   data = results[,c(1,11,2,3,11,4,5,11,6,10)],
   est = results$rr,
@@ -241,14 +240,14 @@ p <- forest(
   ticks_at = c(.5, .75, 1, 1.25, 1.5)
 )
 
-# we add a header for the intervention and exposure groups
+# we add a header for the intervention- and exposure groups
 p <- add_text(
   p,
   text = "Intervention group",
-  col = 3:4,
-  row = 0,
+  col = 3:4, # the text should be across these columns
+  row = 0, # ... and in this row
   part = "header",
-  gp = gpar(fontface = "bold", fontsize = 15)
+  gp = gpar(fontface = "bold", fontsize = 15) # style of the text - see documentation of gpar for further details
 )
 
 p <- add_text(
@@ -264,7 +263,7 @@ p <- add_text(
 p <- add_border(
   p,
   part = "body",
-  gp = gpar(lwd = .5), #line width
+  gp = gpar(lwd = .5), # line width
   row = 0,
   col = c(3, 4, 6, 7)
 )
@@ -325,9 +324,9 @@ magick::image_read("./figs/simpleplot6.png") |>
 
 There are still several things that would improve the plot. In the following we
 
--   center align columns with numbers,
+-   center-align columns containing numbers,
 -   make labels without indentation bold face,
--   finally we specify a theme using `theme_forest` to modify general aspects of the plot.
+-   specify a theme using `theme_forest` to modify general aspects of the plot (next code chunk).
 
 ```{r}
 # center aligning the numbers (body) in the plot
@@ -361,7 +360,7 @@ p <- edit_plot(
 )
 ```
 
-The theme is something that needs to be added when running `forest` meaning this should be done at the top of the script. Here is the entire script necessary to make @fig-fp7:
+The theme is something that needs to be added when running `forest` meaning this should be done at the top of the script. Here is the entire script necessary to make @fig-fp7, once the data has been set up:
 
 ```{r}
 # specifying the theme
@@ -384,7 +383,7 @@ p <- forest(
   ref_line = 1,
   xlim = c(.5, 1.5),
   ticks_at = c(.5, .75, 1, 1.25, 1.5),
-  theme = tm # use the customized theme
+  theme = tm # use the custom theme
 )
 
 # add headers

@@ -13,11 +13,11 @@ execute:
 ---
 
 ### Setting
-Here is an example of a forest plot containing combined results of risk ratios and -differences for a comparison of two exposure groups from a hypothetical study. Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) walk through before moving forwards.
+Here is an example of a forest plot containing combined results of risk ratios and -differences for a comparison of two exposure groups from a hypothetical study. Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) before continuing.
 
 ### Data
 
-The data contain results on number of individuals, events, along with risks for each exposure group and (displayed below) risk ratios and differences with 95% confidence interval limits.
+The data contain results on number of individuals, events, along with risks for each exposure group and (displayed below) risk ratios and -differences with 95% confidence interval limits.
 
 ```{r}
 library(forestploter)
@@ -35,7 +35,8 @@ results$smallblank <- " "
 print(results[,c(1, 8:13)], digits = 5)
 ```
 
-Numbers of events, at risk, and risk estimates are combined to one text variable. Text variables for risk ratios and -differences with 95% confidence intervals are also created. Some indentation is made for selected values of `level`.
+\
+Numbers of events, numbers at risk, and risk estimates are combined to one text variable. Text variables for risk ratios and -differences with 95% confidence intervals are also created. Some indentation is made for selected values of `level`.
 
 ```{r}
 round1 <- function(x) trimws(format(round(x,digits = 1), nsmall = 1, scientific = FALSE))
@@ -72,27 +73,27 @@ colnames(results) <- c(
   "Group",
   "Events / N (risk)",
   "Events / N (risk)",
-  colnames(results)[4:6],
+  colnames(results)[4:6], # these column names are kept as they are
   "",
-  colnames(results)[8:10],
+  colnames(results)[8:10], # ... also these
   "",
   "",
   ""
 )
 ```
 
+The data are now ready for plotting.
+
+
 ### First draft
-In order to get `forest` to make several forest plots, it is necessary to provide a list of results (point estimates and confidence interval limits). It is furthermore necessary to provide two columns for forest plots (`ci_column` takes a vector of length 2). Note that, generally there are two specifications for parameters other than `data` in the code snippet below. The risk ratio scale has been log-transformed while the risk difference scale is kept linear - mostly just show it is possible. Note that column 13 (the small blank) is included several times for padding, this might not be strictly necessary.
+In order to get `forest` to make several forest plots, it is necessary to provide a list of results (point estimates and confidence interval limits). It is furthermore necessary to provide two columns where forest plots should be inserted (`ci_column` takes a vector of length 2). Note that, generally there are two specifications for parameters other than `data` in the code snippet below. The risk ratio scale has been log-transformed while the risk difference scale is kept linear - mostly just show it is possible. Note that column 13 (the small blank) is included several times for padding, this might not be strictly necessary.
 
 ```{r}
 p <- forest(
   data = results[,c(1,13,2,13,3,13,7,12,13,11,12)],
-  est = list(results$rr,
-             results$rd),
-  lower = list(results$rr_lcl,
-               results$rd_lcl),
-  upper = list(results$rr_ucl,
-               results$rd_ucl),
+  est = list(results$rr, results$rd),
+  lower = list(results$rr_lcl, results$rd_lcl),
+  upper = list(results$rr_ucl, results$rd_ucl),
   ci_column = c(8, 11),
   vert_line = list(1, 0),
   x_trans = c("log", "none"),
@@ -139,12 +140,9 @@ tm <- forest_theme(
 
 p <- forest(
   data = results[,c(1,13,2,13,3,13,7,12,13,11,12)],
-  est = list(results$rr,
-             results$rd),
-  lower = list(results$rr_lcl,
-               results$rd_lcl),
-  upper = list(results$rr_ucl,
-               results$rd_ucl),
+  est = list(results$rr, results$rd),
+  lower = list(results$rr_lcl, results$rd_lcl),
+  upper = list(results$rr_ucl, results$rd_ucl),
   ci_column = c(8, 11),
   vert_line = list(1, 0),
   x_trans = c("log", "none"),

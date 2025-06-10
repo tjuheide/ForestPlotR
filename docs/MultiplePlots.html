@@ -4869,11 +4869,11 @@ font-family: inherit;
 
 <section id="setting" class="level3">
 <h3 class="anchored" data-anchor-id="setting">Setting</h3>
-<p>Here is an example of a forest plot containing combined results of risk ratios and -differences for a comparison of two exposure groups from a hypothetical study. Some familiarity with the <code>forestploter</code> package is assumed. The reader might want to look at the <a href="./OneSimplePlot.html">simple forest plot</a> walk through before moving forwards.</p>
+<p>Here is an example of a forest plot containing combined results of risk ratios and -differences for a comparison of two exposure groups from a hypothetical study. Some familiarity with the <code>forestploter</code> package is assumed. The reader might want to look at the <a href="./OneSimplePlot.html">simple forest plot</a> before continuing.</p>
 </section>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
-<p>The data contain results on number of individuals, events, along with risks for each exposure group and (displayed below) risk ratios and differences with 95% confidence interval limits.</p>
+<p>The data contain results on number of individuals, events, along with risks for each exposure group and (displayed below) risk ratios and -differences with 95% confidence interval limits.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forestploter)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(grid)</span>
@@ -4906,7 +4906,8 @@ font-family: inherit;
 13:           Yes 0.71282 0.65721 0.77314 -2.5150210 -3.08566 -1.94439</code></pre>
 </div>
 </div>
-<p>Numbers of events, at risk, and risk estimates are combined to one text variable. Text variables for risk ratios and -differences with 95% confidence intervals are also created. Some indentation is made for selected values of <code>level</code>.</p>
+<p><br>
+Numbers of events, numbers at risk, and risk estimates are combined to one text variable. Text variables for risk ratios and -differences with 95% confidence intervals are also created. Some indentation is made for selected values of <code>level</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>round1 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">trimws</span>(<span class="fu">format</span>(<span class="fu">round</span>(x,<span class="at">digits =</span> <span class="dv">1</span>), <span class="at">nsmall =</span> <span class="dv">1</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -4940,33 +4941,31 @@ font-family: inherit;
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Group&quot;</span>,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Events / N (risk)&quot;</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Events / N (risk)&quot;</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(results)[<span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>],</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(results)[<span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>], <span class="co"># these column names are kept as they are</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;&quot;</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(results)[<span class="dv">8</span><span class="sc">:</span><span class="dv">10</span>],</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(results)[<span class="dv">8</span><span class="sc">:</span><span class="dv">10</span>], <span class="co"># ... also these</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;&quot;</span>,</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;&quot;</span>,</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;&quot;</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>The data are now ready for plotting.</p>
 </section>
 <section id="first-draft" class="level3">
 <h3 class="anchored" data-anchor-id="first-draft">First draft</h3>
-<p>In order to get <code>forest</code> to make several forest plots, it is necessary to provide a list of results (point estimates and confidence interval limits). It is furthermore necessary to provide two columns for forest plots (<code>ci_column</code> takes a vector of length 2). Note that, generally there are two specifications for parameters other than <code>data</code> in the code snippet below. The risk ratio scale has been log-transformed while the risk difference scale is kept linear - mostly just show it is possible. Note that column 13 (the small blank) is included several times for padding, this might not be strictly necessary.</p>
+<p>In order to get <code>forest</code> to make several forest plots, it is necessary to provide a list of results (point estimates and confidence interval limits). It is furthermore necessary to provide two columns where forest plots should be inserted (<code>ci_column</code> takes a vector of length 2). Note that, generally there are two specifications for parameters other than <code>data</code> in the code snippet below. The risk ratio scale has been log-transformed while the risk difference scale is kept linear - mostly just show it is possible. Note that column 13 (the small blank) is included several times for padding, this might not be strictly necessary.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">forest</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> results[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">13</span>,<span class="dv">2</span>,<span class="dv">13</span>,<span class="dv">3</span>,<span class="dv">13</span>,<span class="dv">7</span>,<span class="dv">12</span>,<span class="dv">13</span>,<span class="dv">11</span>,<span class="dv">12</span>)],</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">est =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>             results<span class="sc">$</span>rd),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_lcl,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>               results<span class="sc">$</span>rd_lcl),</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_ucl,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>               results<span class="sc">$</span>rd_ucl),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_column =</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">11</span>),</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">vert_line =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_trans =</span> <span class="fu">c</span>(<span class="st">&quot;log&quot;</span>, <span class="st">&quot;none&quot;</span>),</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="fl">6.5</span>, <span class="fl">2.5</span>)),</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">ticks_at =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="sc">-</span><span class="fl">2.5</span>, <span class="dv">0</span>, <span class="fl">2.5</span>))</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">est =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr, results<span class="sc">$</span>rd),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_lcl, results<span class="sc">$</span>rd_lcl),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_ucl, results<span class="sc">$</span>rd_ucl),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_column =</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">11</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">vert_line =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_trans =</span> <span class="fu">c</span>(<span class="st">&quot;log&quot;</span>, <span class="st">&quot;none&quot;</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="fl">6.5</span>, <span class="fl">2.5</span>)),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ticks_at =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="sc">-</span><span class="fl">2.5</span>, <span class="dv">0</span>, <span class="fl">2.5</span>))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
@@ -5003,86 +5002,83 @@ Figure 1: Forest plot with risk ratios and -differences
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">forest</span>(</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> results[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">13</span>,<span class="dv">2</span>,<span class="dv">13</span>,<span class="dv">3</span>,<span class="dv">13</span>,<span class="dv">7</span>,<span class="dv">12</span>,<span class="dv">13</span>,<span class="dv">11</span>,<span class="dv">12</span>)],</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">est =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr,</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>             results<span class="sc">$</span>rd),</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_lcl,</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>               results<span class="sc">$</span>rd_lcl),</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_ucl,</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>               results<span class="sc">$</span>rd_ucl),</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_column =</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">11</span>),</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">vert_line =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_trans =</span> <span class="fu">c</span>(<span class="st">&quot;log&quot;</span>, <span class="st">&quot;none&quot;</span>),</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="fl">6.5</span>, <span class="fl">2.5</span>)),</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">ticks_at =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="sc">-</span><span class="fl">2.5</span>, <span class="dv">0</span>, <span class="fl">2.5</span>)),</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">theme =</span> tm</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co"># add headers</span></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Intervention group&quot;</span>,</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span>,</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Control group&quot;</span>,</span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">5</span>,</span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Risk ratio (95% CI)&quot;</span>,</span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">8</span>,</span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">1</span>,</span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Risk difference (95% CI)&quot;</span>,</span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">10</span><span class="sc">:</span><span class="dv">11</span>,</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">1</span>,</span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a><span class="co"># center algning relevant columns</span></span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">edit_plot</span>(</span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">7</span>,</span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;body&quot;</span>,</span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">&quot;text&quot;</span>,</span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">hjust =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>),</span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>)</span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a><span class="co"># center aligning the headers in the plot</span></span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">edit_plot</span>(</span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">7</span>,</span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">&quot;text&quot;</span>,</span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>  <span class="at">hjust =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>),</span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>)</span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="co"># bold facing selected labels</span></span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">edit_plot</span>(</span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>  p,</span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">1</span>,</span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">11</span>),</span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;body&quot;</span>,</span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">&quot;text&quot;</span>,</span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>)</span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">est =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr, results<span class="sc">$</span>rd),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_lcl, results<span class="sc">$</span>rd_lcl),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">list</span>(results<span class="sc">$</span>rr_ucl, results<span class="sc">$</span>rd_ucl),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_column =</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">11</span>),</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">vert_line =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_trans =</span> <span class="fu">c</span>(<span class="st">&quot;log&quot;</span>, <span class="st">&quot;none&quot;</span>),</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="fl">6.5</span>, <span class="fl">2.5</span>)),</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">ticks_at =</span> <span class="fu">list</span>(<span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>, <span class="fl">1.5</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="sc">-</span><span class="fl">2.5</span>, <span class="dv">0</span>, <span class="fl">2.5</span>)),</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">theme =</span> tm</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co"># add headers</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Intervention group&quot;</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span>,</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Control group&quot;</span>,</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">5</span>,</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">0</span>,</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Risk ratio (95% CI)&quot;</span>,</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">8</span>,</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">1</span>,</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">add_text</span>(</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="st">&quot;Risk difference (95% CI)&quot;</span>,</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">10</span><span class="sc">:</span><span class="dv">11</span>,</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="dv">1</span>,</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">fontsize =</span> <span class="dv">15</span>)</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a><span class="co"># center algning relevant columns</span></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">edit_plot</span>(</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">7</span>,</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;body&quot;</span>,</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">&quot;text&quot;</span>,</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">hjust =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>),</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>)</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a><span class="co"># center aligning the headers in the plot</span></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">edit_plot</span>(</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">7</span>,</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;header&quot;</span>,</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">&quot;text&quot;</span>,</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">hjust =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>),</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">unit</span>(.<span class="dv">5</span>, <span class="st">&quot;npc&quot;</span>)</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a><span class="co"># bold facing selected labels</span></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">edit_plot</span>(</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>  p,</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="dv">1</span>,</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>  <span class="at">row =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">11</span>),</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">part =</span> <span class="st">&quot;body&quot;</span>,</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">&quot;text&quot;</span>,</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>)</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">

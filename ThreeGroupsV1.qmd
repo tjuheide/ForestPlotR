@@ -14,7 +14,7 @@ execute:
 
 
 ### Setting
-Here is an example of a forest plot containing combined results of risk ratios for a comparison of three exposure groups (high dose, low dose, control, say) from a hypothetical study. Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) walk through before moving forwards.
+Here is an example of a forest plot containing combined results of risk ratios for a comparison of three exposure groups (high dose, low dose, control, say) from a hypothetical study. These data are in long format, there is also a version in [wide format](ThreeGroupsV2.qmd). Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) before continuing.
 
 ### Data
 
