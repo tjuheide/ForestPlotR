@@ -4,8 +4,8 @@ project:
   render:
     - OneSimplePlot.qmd
     - MultiplePlots.qmd
-    - ThreegroupsV1.qmd
-    - ThreegroupsV2.qmd
+    - ThreeGroupsV1.qmd
+    - ThreeGroupsV2.qmd
     - index.qmd
 
 website:
