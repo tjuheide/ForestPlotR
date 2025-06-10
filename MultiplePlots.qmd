@@ -1,0 +1,241 @@
+---
+title: "Multiple forest plots"
+lightbox: true
+format:
+  html:
+    self-contained: true
+    code-copy: true
+
+execute:
+  eval: true
+  message: false
+  warning: false
+---
+
+### Setting
+Here is an example of a forest plot containing combined results of risk ratios and -differences for a comparison of two exposure groups from a hypothetical study. Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) walk through before moving forwards.
+
+### Data
+
+The data contain results on number of individuals, events, along with risks for each exposure group and (displayed below) risk ratios and differences with 95% confidence interval limits.
+
+```{r}
+library(forestploter)
+library(grid)
+library(data.table)
+library(dplyr)
+
+results <- fread("./data/RatioAndDifferenceFPdata.csv")
+
+# empty spaces necessary for the forest function
+results$blank <- "                          "
+results$smallblank <- " "
+
+# overview of selected variables
+print(results[,c(1, 8:13)], digits = 5)
+```
+
+Numbers of events, at risk, and risk estimates are combined to one text variable. Text variables for risk ratios and -differences with 95% confidence intervals are also created. Some indentation is made for selected values of `level`.
+
+```{r}
+round1 <- function(x) trimws(format(round(x,digits = 1), nsmall = 1, scientific = FALSE))
+
+round2 <- function(x) format(round(x,digits = 2), nsmall = 2, scientific = FALSE)
+
+results <- results |>
+  mutate(
+    enr1 = case_when(
+      is.na(events1) ~ "",
+      .default = paste0(events1, " / ", n1, " (", round1(risk1),"%)")
+    ),
+    enr0 = case_when(
+      is.na(events0) ~ "",
+      .default = paste0(events0, " / ", n0, " (", round1(risk0),"%)")
+    ),
+    rr_z = case_when(
+      is.na(events0) ~ "",
+      .default = paste0(round2(rr), " (", round2(rr_lcl), " - ", round2(rr_ucl), ")")
+    ),
+    rd_z = case_when(
+      is.na(events0) ~ "",
+      .default = paste0(round1(rd), " (", round1(rd_lcl), " to ", round1(rd_ucl), ")")
+    ),
+    level = case_when(is.na(events1) | level == "Overall" ~ level, .default = paste(" ", level))
+  ) |>
+  select(level, enr1, enr0, starts_with(c("rr", "rd")), blank, smallblank)
+```
+
+A final touch of the data is to give the columns/variables names that will be reasonable for the forest plot
+
+```{r}
+colnames(results) <- c(
+  "Group",
+  "Events / N (risk)",
+  "Events / N (risk)",
+  colnames(results)[4:6],
+  "",
+  colnames(results)[8:10],
+  "",
+  "",
+  ""
+)
+```
+
+### First draft
+In order to get `forest` to make several forest plots, it is necessary to provide a list of results (point estimates and confidence interval limits). It is furthermore necessary to provide two columns for forest plots (`ci_column` takes a vector of length 2). Note that, generally there are two specifications for parameters other than `data` in the code snippet below. The risk ratio scale has been log-transformed while the risk difference scale is kept linear - mostly just show it is possible. Note that column 13 (the small blank) is included several times for padding, this might not be strictly necessary.
+
+```{r}
+p <- forest(
+  data = results[,c(1,13,2,13,3,13,7,12,13,11,12)],
+  est = list(results$rr,
+             results$rd),
+  lower = list(results$rr_lcl,
+               results$rd_lcl),
+  upper = list(results$rr_ucl,
+               results$rd_ucl),
+  ci_column = c(8, 11),
+  vert_line = list(1, 0),
+  x_trans = c("log", "none"),
+  xlim = list(c(.5, 1.5), c(-6.5, 2.5)),
+  ticks_at = list(c(.5, .75, 1, 1.5), c(-5, -2.5, 0, 2.5))
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-multfp1
+#| fig-cap: |
+#|   Forest plot with risk ratios and -differences
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/multplot1.png",
+  p,
+  width = p_wh[1],
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/multplot1.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+### Prettification ... well aesthetics are subjective anyway
+We will add some headers, some lines, center some text, make some bold face labels, and tamper with the colors and text sizes using a theme.
+
+```{r}
+# theme specification
+tm <- forest_theme(
+  base_size = 15,
+  ci_pch = 19,
+  ci_lwd = 3,
+  ci_col = "#6a4a4a",
+  refline_gp = gpar(col = "grey"),
+  core = list(
+    bg_params = list(fill = c("#ffe2e3", "white")),
+    padding = unit(unit(c(5,5), "mm")) # universal padding around cells in x and y direction
+  ),
+  colhead = list(padding = unit(c(5,7), "mm")) # padding in headers
+)
+
+p <- forest(
+  data = results[,c(1,13,2,13,3,13,7,12,13,11,12)],
+  est = list(results$rr,
+             results$rd),
+  lower = list(results$rr_lcl,
+               results$rd_lcl),
+  upper = list(results$rr_ucl,
+               results$rd_ucl),
+  ci_column = c(8, 11),
+  vert_line = list(1, 0),
+  x_trans = c("log", "none"),
+  xlim = list(c(.5, 1.5), c(-6.5, 2.5)),
+  ticks_at = list(c(.5, .75, 1, 1.5), c(-5, -2.5, 0, 2.5)),
+  theme = tm
+)
+
+# add headers
+p <- add_text(
+  p,
+  text = "Intervention group",
+  col = 3,
+  row = 0,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+p <- add_text(
+  p,
+  text = "Control group",
+  col = 5,
+  row = 0,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+p <- add_text(
+  p,
+  text = "Risk ratio (95% CI)",
+  col = 7:8,
+  row = 1,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+p <- add_text(
+  p,
+  text = "Risk difference (95% CI)",
+  col = 10:11,
+  row = 1,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+# center algning relevant columns
+p <- edit_plot(
+  p,
+  col = 3:7,
+  part = "body",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+# center aligning the headers in the plot
+p <- edit_plot(
+  p,
+  col = 3:7,
+  part = "header",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+# bold facing selected labels
+p <- edit_plot(
+  p,
+  col = 1,
+  row = c(1, 2, 5, 8, 11),
+  part = "body",
+  which = "text",
+  gp = gpar(fontface = "bold")
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-multfp2
+#| fig-cap: |
+#|   Custom themed forest plot with risk ratios and -differences
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/multplot2.png",
+  p,
+  width = p_wh[1] * 1.05,
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/multplot2.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+

@@ -1,0 +1,174 @@
+---
+title: "Three exposure groups - wide version"
+lightbox: true
+format:
+  html:
+    self-contained: true
+    code-copy: true
+
+execute:
+  eval: true
+  message: false
+  warning: false
+---
+### Setting
+Here is an example of a forest plot containing combined results of risk ratios for a comparison of three exposure groups (high dose, low dose, control, say) from a hypothetical study. The data are equivalent to those presented [here](ThreeGroupsV1.qmd) but shaped differently. Some familiarity with the `forestploter` package is assumed. The reader might want to look at the [simple forest plot](OneSimplePlot.qmd) walk through before moving forwards.
+
+### Data
+
+This version of the data is in wide format, meaning each exposure group contributes with a set of columns/variables.
+
+
+```{r}
+library(forestploter)
+library(grid)
+library(data.table)
+library(dplyr)
+
+results <- fread("./data/TwoComparisonFPdatawide.csv")
+
+# point estimates and confidence interval limits for comparisons of groups 1 and 2 against group 0
+print(results[,c(1,11:16)], digits = 5)
+```
+
+As in the other examples presented at this site, the data needs a bit of editing before it is ready to be plugged into `forest`.
+
+```{r}
+round2 <- function(x) format(round(x,digits = 2), nsmall = 2, scientific = FALSE)
+
+results <- results |>
+  mutate(
+    en1 = case_when(is.na(events1) ~ "", .default = paste(events1, "/", n1)),
+    en2 = case_when(is.na(events2) ~ "", .default = paste(events2, "/", n2)),
+    en0 = case_when(is.na(events0) ~ "", .default = paste(events0, "/", n0)),
+    riskratio1 = case_when(
+      is.na(events1) ~ "",
+      .default = paste0(round2(rr1), " (", round2(lcl1), " - ", round2(ucl1), ")")),
+    riskratio2 = case_when(
+      is.na(events2) ~ "",
+      .default = paste0(round2(rr2), " (", round2(lcl2), " - ", round2(ucl2), ")")),
+    level = case_when(is.na(events1) | level == "Overall" ~ level, .default = paste(" ", level))
+  ) |>
+  # since there will be many columns, estimates of absolute risks are suppressed
+  select(level, starts_with(c("en", "riskratio", "rr", "lcl", "ucl")))
+
+# empty spaces necessary for the forest function
+results$blank <- "                          "
+results$smallblank <- " "
+
+colnames(results) <- c(
+  "Group",
+  "Low dose\nEvents / N",
+  "High dose\nEvents / N",
+  "Comparison\nEvents / N",
+  "Low dose vs comparison\nRisk ratio (95% CI)",
+  "High dose vs comparison\nRisk ratio (95% CI)",
+  "rr1",
+  "rr2",
+  "lcl1",
+  "lcl2",
+  "ucl1",
+  "ucl2",
+  "",
+  ""
+)
+
+```
+
+In this forest plot we will include the estimates from both comparisons in the same forest plot (see @fig-fpthreevII1).
+
+```{r}
+#| label: fig-fpthreevII1
+#| fig-cap: |
+#|   Forest plot with two sets of results in the same plot
+
+forest(
+  results[,c(1,13)],
+  est = list(results$rr1, results$rr2),
+  lower = list(results$lcl1, results$lcl2),
+  upper = list(results$ucl1, results$ucl2),
+  ci_column = 2,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5)
+)
+```
+
+As always we need to specify all the columns we want, do some specific modifications to some cells, etc.
+
+```{r}
+tm <- forest_theme(
+  base_size = 15,
+  ci_pch = 19,
+  ci_lwd = 3,
+  ci_col = c("#56B4E9","#001d6d"), # we specify 2 colors, one for each comparison,
+  legend_name = "", # title on legend - set to missing
+  legend_value = c("Low dose", "High dose"), # labels to be used for the two comparisons
+  legend_position = "bottom", # place the legend below the plot
+  refline_gp = gpar(col = "grey"),
+  core = list(bg_params = list(fill = c("#e2f0fb",
+                                        "white")))
+)
+
+p <- forest(
+  results[,c(1,14,2,14,3,14,4,14,5,14,6,13)],
+  est = list(results$rr1, results$rr2),
+  lower = list(results$lcl1, results$lcl2),
+  upper = list(results$ucl1, results$ucl2),
+  ci_column = 12,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5),
+  nudge_y = .25, # increase distance between points within strata
+  theme = tm
+)
+
+
+# center aligning columns
+p <- edit_plot(
+  p,
+  col = 3:11,
+  part = "header",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+p <- edit_plot(
+  p,
+  col = 3:11,
+  part = "body",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+# bold facing selected cells in first column
+p <- edit_plot(
+  p,
+  col = 1,
+  row = c(1, 2, 5, 8, 11),
+  part = "body",
+  which = "text",
+  gp = gpar(fontface = "bold")
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-fpthreevII2
+#| fig-cap: |
+#|   Forest plot with 3 exposure groups combined in one plot
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/fpthreevII2.png",
+  p,
+  width = p_wh[1] * 1.05,
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/fpthreevII2.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+

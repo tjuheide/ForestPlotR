@@ -1,0 +1,474 @@
+---
+title: "A simple forest plot"
+lightbox: true
+format:
+  html:
+    self-contained: true
+    code-copy: true
+
+execute:
+  eval: true
+  message: false
+  warning: false
+---
+
+### Setting
+
+Here is a walk through of how the `forestploter` package can be used to make a simple forest plot of risk ratios from a study comparing 2 exposure groups. The figure will also include numbers of events and numbers at risk along with risk estimates from the two groups.
+
+### Data
+
+We use data from a hypothetical study when two groups have been compared with respect to the risk of some outcome:
+
+```{r, eval = TRUE}
+library(data.table) # just to load data
+library(forestploter) # to make the forest plots
+library(grid) # necessary for the forestploter package to work
+library(dplyr) # for data manipulation
+
+results <- fread("./data/SimpleFPdata.csv")
+results[,-c(4,7)]
+```
+
+As seen, there are results from an overall analysis, and analyses stratified on sex, age, heart failure and hypertension. Hidden from the output are two columns with risk estimates.
+
+Essentially, we need to print this data in a table with a forest plot to one side.
+
+### Empty spaces
+
+Using the `forestploter` package you need to have a column with no content. This is where the actual forest plot will be inserted, therefore the empty column generally needs to be rather wide. As space between columns with data can be small it is often also a good idea to have a more narrow empty column, which can be used several times if necessary as a buffer between columns:
+
+```{r}
+results$blank <- "                          "
+results$smallblank <- " "
+```
+
+### First version
+
+Now, let's try to make a forest plot including a column with labels indicating the analysis, risk estimates for each exposure group, and the forest plot.
+
+```{r}
+#| label: fig-fp1
+#| fig-cap: |
+#|   Rough outline of a forest plot
+
+forest(
+  results[,c(1,4,7,11)],
+  est = results$rr,
+  lower = results$lcl,
+  upper = results$ucl,
+  ci_column = 4,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5)
+)
+```
+
+Clearly there is still some work to be done, but before we do that let's consider what `forest` does. Think of the output as a table with 4 columns: first the labels, then the risk estimates in exposure groups 1 and 2, then a column with no data. It is into this last column we insert the forest plot. Going through the parameters:
+
+-   `data`: here we specify the data we want to use. Notice that we pick a subset of our data set `results` to be used by writing `[,c(1,4,7,11)]` after `results`. Specifically, we use all rows from the data (there is nothing between `[` and the first comma), and then we pick the 1st, 4th, 7th and 11th columns in the order they appear in `results`. The 11th column is the `blank` column we created above.
+-   `est`, `lower`, and `upper`: specify the variables used to plot the point estimate and confidence interval.
+-   `ci_column`: here we specify into which of the columns included in `data` the plot should be inserted.
+-   `ref_line`: inserts a vertical reference line at the specified value.
+-   `xlim` and `ticks_at`: specify the range of the axis used in the plot, and where there should be tick marks.
+
+### Number of events and number at risk
+
+We want to include three additional columns into the plot, the exposure-group specific numbers of events and at risk (combined to one column per group), and the risk ratio. Let's also indent labels for subgroups.
+
+```{r}
+# we want exactly 2 decimal places for all risk ratios and CI-limits, we therefore make a new function.
+round2 <- function(x) format(round(x,digits = 2), nsmall = 2, scientific = FALSE)
+
+results <- results |>
+  mutate(
+    # events and N at risk in the two groups
+    en1 = case_when(is.na(events1) ~ "", .default = paste(events1, "/", n1)),
+    en0 = case_when(is.na(events0) ~ "", .default = paste(events0, "/", n0)),
+    
+    # risk ratio with 95% CI
+    risk_ratio = case_when(
+      is.na(events0) ~ "",
+      .default = paste0(round2(rr), " (", round2(lcl), " - ", round2(ucl), ")")
+    ),
+    
+    # indentation of selected levels
+    level = case_when(is.na(events1) | level == "Overall" ~ level, .default = paste(" ", level))
+  ) |>
+  select(level, en1, risk1, en0, risk0, risk_ratio, rr, lcl, ucl, blank, smallblank)
+```
+
+Let's make a second version of the forest plot including the extra columns. Notice that because we now use more columns, we need to change where to insert the forest plot (`ci_column`). This parameter will change several times in the following code snippets.
+
+```{r}
+
+p <- forest(
+  data = results[,c(1:6,10)],
+  est = results$rr,
+  lower = results$lcl,
+  upper = results$ucl,
+  ci_column = 7,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5)
+)
+
+```
+
+```{r, echo = FALSE}
+#| label: fig-fp2
+#| fig-cap: |
+#|   Plot including all data
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/simpleplot2.png",
+  p,
+  width = p_wh[1],
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/simpleplot2.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+### Extra padding between columns
+
+With the current settings it seems redundant, however, for the sake of the example a bit of space is inserted between the 1st and 2nd, between then 3rd and 4th, and between the 5th and 6th columns. We use the `smallblank` column for this.
+
+```{r}
+p <- forest(
+  data = results[,c(1,11,2,3,11,4,5,11,6,10)], # column 11 (smallblank) inserted several times for padding
+  est = results$rr,
+  lower = results$lcl,
+  upper = results$ucl,
+  ci_column = 10,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5)
+)
+
+```
+
+```{r, echo = FALSE}
+#| label: fig-fp3
+#| fig-cap: |
+#|   Plot with added padding
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/simpleplot3.png",
+  p,
+  width = p_wh[1],
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/simpleplot3.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+### Column headers
+
+This looks exceptionally stupid. @fig-fp3 holds all the data we want to include but the `smallblank`-columns take up way too much space. However, editing the column headers will help this this. We will edit these by naming the columns (variables) of the data set `results`:
+
+```{r}
+colnames(results) <- c(
+  "Group",
+  "Events / N at risk",
+  "Risk (95% CI)",
+  "Events / N at risk",
+  "Risk (95% CI)",
+  "",
+  "rr",
+  "lcl",
+  "ucl",
+  "",
+  ""
+)
+```
+
+Notice how we shamelessly use the same, sometime empty, name for several groups of columns. This is intentional.
+
+If we once again run the `forest` function on this data we get @fig-fp4.
+
+```{r, echo = FALSE}
+#| label: fig-fp4
+#| fig-cap: |
+#|   Plot with custom headers
+
+p <- forest(
+  data = results[,c(1,11,2,3,11,4,5,11,6,10)],
+  est = results$rr,
+  lower = results$lcl,
+  upper = results$ucl,
+  ci_column = 10,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5)
+)
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/simpleplot4.png",
+  p,
+  width = p_wh[1],
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/simpleplot4.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+### Further headers
+
+#### Exposure group headers
+
+In @fig-fp4 we can't tell which columns refer to which exposure group. We can make that clear by first making the plot into an object we can manipulate, specifically we want to add additional headers spanning several columns. We also add a line between data and headers for each exposure group - this is probably not strictly necessary in this situation, but it can be helpful to guide the eye.
+
+```{r}
+# make the plot into an object that can be edited using functions from the forestploter package
+p <- forest(
+  data = results[,c(1,11,2,3,11,4,5,11,6,10)],
+  est = results$rr,
+  lower = results$lcl,
+  upper = results$ucl,
+  ci_column = 10,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5)
+)
+
+# we add a header for the intervention and exposure groups
+p <- add_text(
+  p,
+  text = "Intervention group",
+  col = 3:4,
+  row = 0,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+p <- add_text(
+  p,
+  text = "Control group",
+  col = 6:7,
+  row = 0,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+# we add a line between the header and the data for both exposure groups
+p <- add_border(
+  p,
+  part = "body",
+  gp = gpar(lwd = .5), #line width
+  row = 0,
+  col = c(3, 4, 6, 7)
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-fp5
+#| fig-cap: |
+#|   Plot with exposure group headers
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/simpleplot5.png",
+  p,
+  width = p_wh[1],
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/simpleplot5.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+#### Combined header for risk ratio and plot
+
+The last header we want to add is one spanning the columns with risk ratios (reported numerically and graphically)
+
+```{r}
+p <- add_text(
+  p,
+  text = "Risk ratio (95% CI)",
+  col = 9:10,
+  row = 1,
+  part = "header",
+  gp = gpar(fontface = "bold")
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-fp6
+#| fig-cap: |
+#|   Plot with header for risk ratios
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/simpleplot6.png",
+  p,
+  width = p_wh[1],
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/simpleplot6.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+### Finishing touches
+
+There are still several things that would improve the plot. In the following we
+
+-   center align columns with numbers,
+-   make labels without indentation bold face,
+-   finally we specify a theme using `theme_forest` to modify general aspects of the plot.
+
+```{r}
+# center aligning the numbers (body) in the plot
+p <- edit_plot(
+  p,
+  col = 3:7,
+  part = "body",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+# center aligning the headers in the plot
+p <- edit_plot(
+  p,
+  col = 3:7,
+  part = "header",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+# bold facing selected labels
+p <- edit_plot(
+  p,
+  col = 1,
+  row = c(1, 2, 5, 8, 11),
+  part = "body",
+  which = "text",
+  gp = gpar(fontface = "bold")
+)
+```
+
+The theme is something that needs to be added when running `forest` meaning this should be done at the top of the script. Here is the entire script necessary to make @fig-fp7:
+
+```{r}
+# specifying the theme
+tm <- forest_theme(
+  base_size = 15, # size of text
+  ci_pch = 19, # shape of point estimate (19 = circle)
+  ci_lwd = 3.5, # line width of CI
+  ci_col = "#58508d", # color of the point estimate and CI
+  refline_gp = gpar(col = "grey"), # color of reference line
+  core = list(bg_params = list(fill = c("#f6f1ff", "white"))) # alternating colors of stripes
+)
+
+# constructing the basic forest plot
+p <- forest(
+  data = results[,c(1,11,2,3,11,4,5,11,6,10)],
+  est = results$rr,
+  lower = results$lcl,
+  upper = results$ucl,
+  ci_column = 10,
+  ref_line = 1,
+  xlim = c(.5, 1.5),
+  ticks_at = c(.5, .75, 1, 1.25, 1.5),
+  theme = tm # use the customized theme
+)
+
+# add headers
+p <- add_text(
+  p,
+  text = "Intervention group",
+  col = 3:4,
+  row = 0,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+p <- add_text(
+  p,
+  text = "Control group",
+  col = 6:7,
+  row = 0,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+p <- add_text(
+  p,
+  text = "Risk ratio (95% CI)",
+  col = 9:10,
+  row = 1,
+  part = "header",
+  gp = gpar(fontface = "bold", fontsize = 15)
+)
+
+# add borders under selected headers
+p <- add_border(
+  p,
+  part = "body",
+  gp = gpar(lwd = .5), #line width
+  row = 0,
+  col = c(3, 4, 6, 7)
+)
+
+# center aligning the numbers (body) in the plot
+p <- edit_plot(
+  p,
+  col = 3:7,
+  part = "body",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+# center aligning the headers in the plot
+p <- edit_plot(
+  p,
+  col = 3:7,
+  part = "header",
+  which = "text",
+  hjust = unit(.5, "npc"),
+  x = unit(.5, "npc")
+)
+
+# bold facing selected labels
+p <- edit_plot(
+  p,
+  col = 1,
+  row = c(1, 2, 5, 8, 11),
+  part = "body",
+  which = "text",
+  gp = gpar(fontface = "bold")
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-fp7
+#| fig-cap: |
+#|   Finished forest plot with custom theme
+
+p_wh <- get_wh(plot = p, unit = "in")
+ggplot2::ggsave(
+  "./figs/simpleplot7.png",
+  p,
+  width = p_wh[1] * 1.05,
+  height = p_wh[2],
+  units = "in"
+)
+
+magick::image_read("./figs/simpleplot7.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```

@@ -1,21 +1,31 @@
 project:
   type: website
+  output-dir: docs
+  render:
+    - OneSimplePlot.qmd
+    - MultiplePlots.qmd
+    - ThreegroupsV1.qmd
+    - ThreegroupsV2.qmd
+    - index.qmd
 
 website:
-  title: "ForestPlotR"
-  navbar:
-    left:
+  title: "Forest plots in R"
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
       - href: index.qmd
         text: Home
-      - about.qmd
+        contents: 
+          - OneSimplePlot.qmd
+          - MultiplePlots.qmd
+          - ThreeGroupsV1.qmd
+          - ThreeGroupsV2.qmd
 
 format:
   html:
     theme:
-      - cosmo
-      - brand
-    css: styles.css
-    toc: true
+      - united
 
 
 

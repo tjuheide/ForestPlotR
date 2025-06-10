@@ -1,11 +1,69 @@
 ---
-title: "ForestPlotR"
+title: "Forest plots in R"
+lightbox: true
 ---
 
-This is a Quarto website.
+### Welcome
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+This website is a small collection of forest plots made in `R` using the `forestploter` package. Details and documentation of the package can be found [here](https://cran.r-project.org/web/packages/forestploter/vignettes/forestploter-intro.html) (where the function `get_wh` is presented - this is useful for saving plots) or [here](https://github.com/adayim/forestploter).
 
-```{r}
-1 + 1
+Readers are advised to start walking through [A simple forest plot](OneSimplePlot.qmd) before looking into the slightly more advanced examples.
+
+### The plots
+
+The website provides the code necessary to construct the following plots. Please be advised that the chosen colors are not necessarily good, and the reader is encouraged to select colors in a sensible way. The default alternating grey/white colors for stripes with black used in the actual plot is often perfectly fine to use.
+
+#### A simple plot
+
+```{r, echo = FALSE}
+#| label: fig-simple
+#| fig-cap: |
+#|   [Simple forest plot of risk ratios](OneSimplePlot.qmd)
+
+magick::image_read("./figs/simpleplot7.png") |>
+  magick::image_ggplot(interpolate = TRUE)
 ```
+
+#### A figure containing two forest plots
+
+```{r, echo = FALSE}
+#| label: fig-multiple
+#| fig-cap: |
+#|   [Forest plot including risk ratios and -differences](MultiplePlots.qmd)
+
+magick::image_read("./figs/multplot2.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+#### Several exposure groups, long format
+
+```{r, echo = FALSE}
+#| label: fig-threeGroupsLong
+#| fig-cap: |
+#|   [Forest plot with 3 exposure groups, long format](ThreeGroupsV1.qmd)
+
+magick::image_read("./figs/fpthree1.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+#### Several exposure groups, wide format
+
+```{r, echo = FALSE}
+#| label: fig-threeGroupsWide
+#| fig-cap: |
+#|   [Forest plot with 3 exposure groups, wide format](ThreeGroupsV2.qmd)
+
+magick::image_read("./figs/fpthreevII2.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+\
+\
+\
+
+```{r, echo = FALSE}
+
+```
+::: {style="font-size: 50%;"}
+The site was built on `{r} format(Sys.time(), "%d %b %Y")` using `{r} R.version[["version.string"]]`, and the following packages (version): `forestploter` (`{r} packageVersion("forestploter")`), `grid` (`{r} packageVersion("grid")`), `data.table` (`{r} packageVersion("data.table")`), and `dplyr` (`{r} packageVersion("dplyr")`).
+:::
