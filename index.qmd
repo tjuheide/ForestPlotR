@@ -9,11 +9,13 @@ This website is a small collection of forest plots made in `R` using the `forest
 
 Readers are advised to start walking through [A simple forest plot](OneSimplePlot.qmd) before looking into the slightly more advanced examples.
 
-The data used for these plots can be found [here](https://github.com/tjuheide/ForestPlotR/tree/main/data)
+The data used for these plots can be found [here](https://github.com/tjuheide/ForestPlotR/tree/main/data).
+
+For completeness, the simple plot has been recreated (more or less) using `ggplot2` and `patchwork`. This is done mostly to demonstrate that it is a possibility, and to highlight some challenges one might face using these otherwise magnificent packages.
 
 ### The plots
 
-The website provides the code necessary to construct the following plots. Please be advised that the chosen colors are not necessarily good, and the reader is encouraged to select colors in a sensible way. The default alternating grey/white colors for stripes with black used in the actual plot is often perfectly fine to use.
+The website provides the code necessary to construct the following plots. Please be advised that the chosen colors are not necessarily good, and the reader is encouraged to select colors in a sensible way. The default settings, with alternating grey/white colors for stripes and black dots and lines used in the forest plot, are perfectly fine to use.
 
 #### A simple plot
 
@@ -59,6 +61,17 @@ magick::image_read("./figs/fpthreevII2.png") |>
   magick::image_ggplot(interpolate = TRUE)
 ```
 
+#### The simple plot recreated using `ggplot2` and `patchwork`
+
+```{r, echo = FALSE}
+#| label: fig-ggpatch
+#| fig-cap: |
+#|   [The simple forest plot recreated using `ggplot2` and `patchwork`](ggplot2.qmd)
+
+magick::image_read("./figs/gg8.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
 \
 \
 \
@@ -67,5 +80,5 @@ magick::image_read("./figs/fpthreevII2.png") |>
 
 ```
 ::: {style="font-size: 50%;"}
-The site was built on `{r} format(Sys.time(), "%d %b %Y")` using `{r} R.version[["version.string"]]`, and the following packages (version): `forestploter` (`{r} packageVersion("forestploter")`), `grid` (`{r} packageVersion("grid")`), `data.table` (`{r} packageVersion("data.table")`), and `dplyr` (`{r} packageVersion("dplyr")`).
+The site was built on `{r} format(Sys.time(), "%d %b %Y")` using `{r} R.version[["version.string"]]`, and the following packages (version): `forestploter` (`{r} packageVersion("forestploter")`), `grid` (`{r} packageVersion("grid")`), `data.table` (`{r} packageVersion("data.table")`), `dplyr` (`{r} packageVersion("dplyr")`), `ggplot2` (`{r} packageVersion("ggplot2")`), and `patchwork` (`{r} packageVersion("patchwork")`).
 :::

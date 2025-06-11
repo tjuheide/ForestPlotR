@@ -1,0 +1,722 @@
+---
+title: "Forest plots using `ggplot2` and `patchwork`"
+lightbox: true
+format:
+  html:
+    self-contained: true
+    code-copy: true
+
+execute:
+  eval: true
+  message: false
+  warning: false
+---
+### The challenge
+
+Frequent users of `ggplot2` might prefer not to use `forestploter` but instead rely on more familiar packages. It is fairly straightforward to make a forest plot using `ggplot2` and `patchwork`, however, having stripes of alternating colors spanning the entire plot can be challenging. First, let's try to assemble a forest plot including a column of labels, columns with risk estimates in the two groups to be compared, and a forest plot of risk ratios. The data are the same that were used for [the simple plot](OneSimplePlot.qmd), which readers are advised to look at before continuing:
+
+```{r}
+library(data.table)
+library(ggplot2)
+library(patchwork)
+library(dplyr)
+
+# theme_void is used as we by default
+theme_set(theme_void(base_size = 15))
+
+# text size
+tsize <- 6
+
+dt <- fread("./data/SimpleFPdata.csv") |>
+  mutate(
+    # a variable used to control rows (y-axis) in the plot
+    y = n() - row_number(),
+    
+    # which levels should have indentation (and not be bold face)
+    indent = case_when(is.na(events1) | level == "Overall" ~ 0,
+                       .default = 1),
+    
+    # adding indentation
+    level = case_when(indent == 1 ~ paste("  ", level),
+                      .default = level),
+    
+    # variable to control bold face vs. plain labeling
+    boldface = case_when(indent == 0 ~ "bold",
+                         .default = "plain")
+  )
+
+```
+
+One simple way to make a forest plot using `ggplot2` and `patchwork` is to simply make a plot for each column to be included, and then patching them together afterwards:
+
+```{r}
+# column with labels
+labels <- ggplot(dt, aes(x = 0, y = y, label = level, fontface = boldface)) +
+  # the labels should be left justified
+  geom_text(hjust = 0, size = tsize)
+
+# column with risk estimates in the intervention group
+risk1 <- ggplot(dt, aes(x = 1, y = y, label = risk1)) +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI) in the\nintervention group") +
+  # the column title is centered
+  theme(plot.title = element_text(hjust = .5))
+
+# column with risk estimates in the control group
+risk0 <- ggplot(dt, aes(x = 1, y = y, label = risk0)) +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI) in the\ncontrol group") +
+  theme(plot.title = element_text(hjust = .5))
+
+# forest plot of risk ratios
+fp <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
+  geom_vline(xintercept = 1, color = "grey", linetype = 2) +
+  geom_pointrange(color = "#58508d", linewidth = 1.5) +
+  theme(axis.line.x = element_line(),
+        axis.text.x = element_text(),
+        axis.ticks.x = element_line(),
+        axis.ticks.length = unit(2, "mm"),
+        plot.title = element_text(hjust = .5)) +
+  ggtitle("\nRisk ratio with 95% CI")
+
+
+# patching the columns together
+plot <- (labels | risk1 | risk0 | fp) +
+  plot_layout(widths = c(1, 1, 1, 1.5))
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg1
+#| fig-cap: |
+#|   Basic forest plot using `ggplot2` and `patchwork`
+
+ggsave(
+  "./figs/gg1.png",
+  plot,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg1.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+So far so good, but there are no stripes. We can easily add stripes to the individual column using `geom_rect`, on a derived data set:
+
+```{r}
+# select every other row, here the odd numbered rows
+# to get event numbered rows filter on `y %% 2 == 0`
+stripesdt <- dt |>
+  filter(y %% 2 == 1)
+
+labels_stripes <- ggplot(dt, aes(x = 0, y = y, label = level, fontface = boldface)) +
+  # adding rectangles for odd numbered rows spanning the entire x-axis
+  geom_rect(data = stripesdt,
+            aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
+            fill = "#f6f1ff") +
+  geom_text(hjust = 0, size = 6)
+
+risk1_stripes <- ggplot(dt, aes(x = 1, y = y, label = risk1)) +
+  geom_rect(data = stripesdt,
+            aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
+            fill = "#f6f1ff") +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI) in the\nintervention group") +
+  theme(plot.title = element_text(hjust = .5))
+
+risk0_stripes <- ggplot(dt, aes(x = 1, y = y, label = risk0)) +
+  geom_rect(data = stripesdt,
+            aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
+            fill = "#f6f1ff") +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI) in the\ncontrol group") +
+  theme(plot.title = element_text(hjust = .5))
+
+fp_stripes <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
+  geom_rect(data = stripesdt,
+            aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
+            fill = "#f6f1ff") +
+  geom_vline(xintercept = 1, color = "grey", linetype = 2) +
+  geom_pointrange(color = "#58508d", linewidth = 1.5) +
+  theme(axis.line.x = element_line(),
+        axis.text.x = element_text(),
+        axis.ticks.x = element_line(),
+        axis.ticks.length = unit(2, "mm"),
+        plot.title = element_text(hjust = .5)) +
+  ggtitle("\nRisk ratio with 95% CI")
+
+
+# patching the columns together
+plot_stripes <- (labels_stripes | risk1_stripes | risk0_stripes | fp_stripes) +
+  plot_layout(widths = c(1, 1, 1, 1.5))
+
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg2
+#| fig-cap: |
+#|   Forest plot with interrupted stripes
+
+ggsave(
+  "./figs/gg2.png",
+  plot_stripes,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg2.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+This is close to a presentable forest plot, however, it is less than satisfactory to have that gap between the text columns and the forest plot. We need to come up with a solution to this challenge.
+
+### The solution
+
+One possibility is to scrap the stripes from the individual plots, make a plot with only stripes, and then use `inset_element` from patchwork to plot the data onto the stripes. A key thing to realize is that titles (in all columns) and tick marks (in the forest plot) must somehow be preserved in the plot with stripes, for the stripes to ailgn with the data across columns. To demonstrate, let's us ignore these outer elements and just make some stripes:
+
+```{r}
+naive_stripes <- ggplot(stripesdt, aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5)) +
+  geom_rect(fill = "#f6f1ff") +
+  coord_cartesian(xlim = c(0, 10))
+
+# specification of the plot to be plotted onto the stripes
+forest_plot <- (labels | risk1 | risk0 | fp) +
+  plot_layout(widths = c(1, 1, 1, 1.5))
+
+naive_plot <- naive_stripes + inset_element(
+  plot,
+  # where forest_plot needs to be inserted relative to naive_stripes
+  l = 0, b = 0, r = 1, t = 1,
+  align_to = "full"
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg3
+#| fig-cap: |
+#|   Forest plot with misaligned stripes
+
+ggsave(
+  "./figs/gg3.png",
+  naive_plot,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg3.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+Not exactly what we were looking for. As mentioned above the issue here is that `forest_plot` has reserved space for titles and tick marks, while `naive_stripes` has not. What we need to do is to make make a plot with stripes that also carries tickmarks and a title (of similar sizes as that in `forest_plot`). One way to do this is to simply repeat `fp` with all elements transparent.
+
+```{r}
+# the basis for these stripes is the same as fp but content is transparent
+stripes <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
+  geom_pointrange(color = "transparent") +
+  theme(axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"),
+        plot.title = element_text(color = "transparent")) +
+  ggtitle("\nRisk ratio with 95% CI") +
+  geom_rect(data = stripesdt,
+            aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
+            fill = "#f6f1ff")
+
+aligned_plot <- stripes + inset_element(
+  forest_plot,
+  l = 0, b = 0, r = 1, t = 1,
+  align_to = "full"
+)
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg4
+#| fig-cap: |
+#|   Forest plot with aligned stripes
+
+ggsave(
+  "./figs/gg4.png",
+  aligned_plot,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg4.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+Et voila! A few final modifications might be desirable, specifically, we want to cut away some space on the left-hand side of the figure, and make titles bold face.
+
+```{r}
+final_plot <- stripes + inset_element(
+  forest_plot,
+  l = 0, b = 0, r = 1, t = 1,
+  align_to = "full"
+) & 
+  # cutting some space on the left
+  theme(plot.margin = margin(l = -60),
+        plot.title = element_text(face = "bold"))
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg5
+#| fig-cap: |
+#|   Presentable forest plot
+
+ggsave(
+  "./figs/gg5.png",
+  final_plot,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg5.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+### Full fledged forest plot
+
+Let us get a bit closer to [the simple forest plot](OneSimplePlot.qmd). Starting from scratch (keeping only `tsize`), we once again load the data and add relevant variables, including additional text variables.
+
+```{r}
+rm(list = ls()[ls() != "tsize"])
+
+round2 <- function(x) format(round(x,digits = 2), nsmall = 2, scientific = FALSE)
+
+dt <- fread("./data/SimpleFPdata.csv") |>
+  mutate(
+    # events and N at risk in the two groups
+    en1 = case_when(is.na(events1) ~ "", .default = paste(events1, "/", n1)),
+    en0 = case_when(is.na(events0) ~ "", .default = paste(events0, "/", n0)),
+    
+    # risk ratio with 95% CI
+    risk_ratio = case_when(
+      is.na(events0) ~ "",
+      .default = paste0(round2(rr), " (", round2(lcl), " - ", round2(ucl), ")")
+    ),
+    
+    y = n() - row_number(),
+    indent = case_when(is.na(events1) | level == "Overall" ~ 0,
+                       .default = 1),
+    level = case_when(indent == 1 ~ paste("  ", level),
+                      .default = level),
+    boldface = case_when(indent == 0 ~ "bold",
+                         .default = "plain")
+  )
+```
+
+Again, we make plots for the individual columns bit notice that some empty titles are added. This is to make the individual columns align when patching. We also bring back a transparent x-axis on all columns for the same reason.
+
+```{r}
+# column with labels
+labels <- ggplot(dt, aes(x = 0, y = y, label = level, fontface = boldface)) +
+  # the labels should be left justified
+  geom_text(hjust = 0, size = 6) +
+  ggtitle("") +
+  theme(axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# events / n at risk
+eventsn1 <- ggplot(dt, aes(x = 1, y = y, label = en1)) +
+  geom_text(size = 6) +
+  ggtitle("Events / N at risk") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# column with risk estimates in the intervention group
+risk1 <- ggplot(dt, aes(x = 1, y = y, label = risk1)) +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI)") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# The two columns are patched with a common title
+intervention <- wrap_elements(
+  (eventsn1 | risk1) +
+    plot_annotation(title = "Intervention group") &
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+        plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# likewise for the control group
+risk0 <- ggplot(dt, aes(x = 1, y = y, label = risk0)) +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI)") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+eventsn0 <- ggplot(dt, aes(x = 1, y = y, label = en0)) +
+  geom_text(size = 6) +
+  ggtitle("Events / N at risk") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+control <- wrap_elements(
+  (eventsn0 | risk0) +
+    plot_annotation(title = "Control group") &
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+        plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# column with risk ratios as text
+rr <- ggplot(dt, aes(x = 1, y = y, label = risk_ratio)) +
+  geom_text(size = 6) +
+  ggtitle("") +
+  theme(axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# forest plot of risk ratios
+fp <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
+  geom_vline(xintercept = 1, color = "grey", linetype = 2) +
+  geom_pointrange(color = "#58508d", linewidth = 1.5) +
+  theme(axis.line.x = element_line(),
+        axis.text.x = element_text(),
+        axis.ticks.x = element_line(),
+        axis.ticks.length = unit(2, "mm")) +
+  ggtitle("")
+
+# patching text and plot
+rrfp <- wrap_elements(
+  (rr | fp) +
+    plot_annotation(title = "Risk ratio (95% CI)") &
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+        plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# adding annotation to labels to align all columns
+labels_anno <- wrap_elements(
+  labels + plot_annotation(title = "")&
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+          plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+full_fledged1 <- labels_anno | intervention | control | rrfp
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg6
+#| fig-cap: |
+#|   Forest plot with two level headers
+
+ggsave(
+  "./figs/gg6.png",
+  full_fledged1,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg6.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+We now add the stripes, which are also annotated in order for the plots to align.
+
+```{r}
+# data for stripes
+stripesdt <- dt |>
+  filter(y %% 2 == 1)
+
+# the stripes are made using a transparent repetition of the forest plot
+stripes <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
+  geom_pointrange(color = "transparent") +
+  theme(axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"),
+        plot.title = element_text(color = "transparent")) +
+  ggtitle("") +
+  geom_rect(data = stripesdt,
+            aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
+            fill = "#f6f1ff")
+
+# the stripes are annotated to align with other plots
+stripes_anno <- wrap_elements(
+  stripes + plot_annotation(title = "")&
+    theme(plot.title = element_text(hjust = .5),
+          plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# the actual forest plot to be plotted onto the stripes
+plot <- (labels_anno | intervention | control | rrfp) +
+  plot_layout(widths = c(.85, 1, 1, 1.4)) &
+  theme(plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+
+# the forest plot with stripes
+full_fledged2 <- stripes_anno + inset_element(
+  plot,
+  l = 0, b = 0, r = 1, t = 1,
+  align_to = "full"
+) & 
+  theme(plot.margin = margin(l = -60))
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg7
+#| fig-cap: |
+#|   Forest plot with two level headers and stripes
+
+ggsave(
+  "./figs/gg7.png",
+  full_fledged2,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg7.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+For this plot it seems redundant but here is one way in which arrows can be put onto confidence intervals if they extend below/above some set of limits (set arbitrarily to `.5` and `1.25` in this example). We tinker with the original data:
+
+```{r}
+rm(list = ls()[ls() != "tsize"])
+
+round2 <- function(x) format(round(x,digits = 2), nsmall = 2, scientific = FALSE)
+
+dt <- fread("./data/SimpleFPdata.csv") |>
+  mutate(
+    # events and N at risk in the two groups
+    en1 = case_when(is.na(events1) ~ "", .default = paste(events1, "/", n1)),
+    en0 = case_when(is.na(events0) ~ "", .default = paste(events0, "/", n0)),
+    
+    # risk ratio with 95% CI
+    risk_ratio = case_when(
+      is.na(events0) ~ "",
+      .default = paste0(round2(rr), " (", round2(lcl), " - ", round2(ucl), ")")
+    ),
+    
+    y = n() - row_number(),
+    indent = case_when(is.na(events1) | level == "Overall" ~ 0,
+                       .default = 1),
+    level = case_when(indent == 1 ~ paste("  ", level),
+                      .default = level),
+    boldface = case_when(indent == 0 ~ "bold",
+                         .default = "plain"),
+    
+    # mark which confidence interval reach beyond the scale of the figure
+    left_arrow = case_when(lcl < .5 ~ 1,
+                           .default = 0),
+    right_arrow = case_when(ucl > 1.25 ~ 1,
+                            .default = 0),
+    
+    # truncate intervals
+    lcl = case_when(left_arrow == 1 ~ .5,
+                    .default = lcl),
+    ucl = case_when(right_arrow == 1 ~ 1.25,
+                    .default = ucl)
+  )
+```
+
+Now we more or less repeat all we have done so far, except we also add two `geom_segment`s to `fp` inserting left- and right-pointing arrows at the end of truncated intervals.
+
+```{r}
+# column with labels
+labels <- ggplot(dt, aes(x = 0, y = y, label = level, fontface = boldface)) +
+  # the labels should be left justified
+  geom_text(hjust = 0, size = 6) +
+  ggtitle("") +
+  theme(axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# events / n at risk
+eventsn1 <- ggplot(dt, aes(x = 1, y = y, label = en1)) +
+  geom_text(size = 6) +
+  ggtitle("Events / N at risk") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# column with risk estimates in the intervention group
+risk1 <- ggplot(dt, aes(x = 1, y = y, label = risk1)) +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI)") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# The two columns are patched with a common title
+intervention <- wrap_elements(
+  (eventsn1 | risk1) +
+    plot_annotation(title = "Intervention group") &
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+        plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# likewise for the control group
+risk0 <- ggplot(dt, aes(x = 1, y = y, label = risk0)) +
+  geom_text(size = 6) +
+  ggtitle("Risk (95% CI)") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+eventsn0 <- ggplot(dt, aes(x = 1, y = y, label = en0)) +
+  geom_text(size = 6) +
+  ggtitle("Events / N at risk") +
+  theme(plot.title = element_text(hjust = .5),
+        axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+control <- wrap_elements(
+  (eventsn0 | risk0) +
+    plot_annotation(title = "Control group") &
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+        plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# column with risk ratios as text
+rr <- ggplot(dt, aes(x = 1, y = y, label = risk_ratio)) +
+  geom_text(size = 6) +
+  ggtitle("") +
+  theme(axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"))
+
+# forest plot of risk ratios
+fp <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
+  geom_vline(xintercept = 1, color = "grey", linetype = 2) +
+  geom_pointrange(color = "#58508d", linewidth = 1.5) +
+  
+  # insert arrow at intervals truncated to the left
+  geom_segment(data = subset(dt, left_arrow == 1),
+               aes(xend = lcl, yend = y),
+               arrow = arrow(length = unit(.25, "cm")),
+               color = "#58508d",
+               linewidth = 1.5) +
+  
+  # insert arrow at intervals truncated to the right
+  geom_segment(data = subset(dt, right_arrow == 1),
+               aes(xend = ucl, yend = y),
+               arrow = arrow(length = unit(.25, "cm")),
+               color = "#58508d",
+               linewidth = 1.5) +
+  
+  # specify breaks on the x-axis
+  scale_x_continuous(breaks = c(.5, .75, 1, 1.25),
+                     limits = c(.5, 1.25)) +
+  
+  theme(axis.line.x = element_line(),
+        axis.text.x = element_text(),
+        axis.ticks.x = element_line(),
+        axis.ticks.length = unit(2, "mm")) +
+  ggtitle("")
+
+# patching text and plot
+rrfp <- wrap_elements(
+  (rr | fp) +
+    plot_annotation(title = "Risk ratio (95% CI)") &
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+        plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# adding annotation to labels to align all columns
+labels_anno <- wrap_elements(
+  labels + plot_annotation(title = "")&
+    theme(plot.title = element_text(hjust = .5, face = "bold"),
+          plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# data for stripes
+stripesdt <- dt |>
+  filter(y %% 2 == 1)
+
+# the stripes are made using a transparent repetition of the forest plot
+# arrows are ignored, we just need tthe plot to have the proper height
+stripes <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
+  geom_pointrange(color = "transparent") +
+  theme(axis.line.x = element_line(color = "transparent"),
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks.x = element_line(color = "transparent"),
+        axis.ticks.length = unit(2, "mm"),
+        plot.title = element_text(color = "transparent")) +
+  ggtitle("") +
+  geom_rect(data = stripesdt,
+            aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
+            fill = "#f6f1ff")
+
+# the stripes are annotated to align with other plots
+stripes_anno <- wrap_elements(
+  stripes + plot_annotation(title = "")&
+    theme(plot.title = element_text(hjust = .5),
+          plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+)
+
+# the actual forest plot to be plotted onto the stripes
+plot <- (labels_anno | intervention | control | rrfp) +
+  plot_layout(widths = c(.85, 1, 1, 1.4)) &
+  theme(plot.background = element_rect(fill = "transparent", color = "transparent"),
+        panel.background = element_rect(fill = "transparent", color = "transparent"))
+
+# the forest plot with stripes
+full_fledged3 <- stripes_anno + inset_element(
+  plot,
+  l = 0, b = 0, r = 1, t = 1,
+  align_to = "full"
+) & 
+  theme(plot.margin = margin(l = -100, r = 5))
+```
+
+```{r, echo = FALSE}
+#| label: fig-gg8
+#| fig-cap: |
+#|   Full fledged forest plot
+
+ggsave(
+  "./figs/gg8.png",
+  full_fledged3,
+  width = 16,
+  height = 5,
+  units = "in"
+)
+
+magick::image_read("./figs/gg8.png") |>
+  magick::image_ggplot(interpolate = TRUE)
+```
+
+Note that the various parameters, i.e., `tsize`, `base_size`, margins, relative widths, etc.,  generally need fine tuning. The values used in this example are not universally valid.

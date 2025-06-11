@@ -6,6 +6,7 @@ project:
     - MultiplePlots.qmd
     - ThreeGroupsV1.qmd
     - ThreeGroupsV2.qmd
+    - ggplot2.qmd
     - index.qmd
 
 website:
@@ -21,6 +22,7 @@ website:
           - MultiplePlots.qmd
           - ThreeGroupsV1.qmd
           - ThreeGroupsV2.qmd
+          - ggplot2.qmd
 
 format:
   html:
