@@ -79,9 +79,8 @@ fp <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
         plot.title = element_text(hjust = .5)) +
   ggtitle("\nRisk ratio with 95% CI")
 
-
 # patching the columns together
-plot <- (labels | risk1 | risk0 | fp) +
+forest_plot <- (labels | risk1 | risk0 | fp) +
   plot_layout(widths = c(1, 1, 1, 1.5))
 ```
 
@@ -92,7 +91,7 @@ plot <- (labels | risk1 | risk0 | fp) +
 
 ggsave(
   "./figs/gg1.png",
-  plot,
+  forest_plot,
   width = 16,
   height = 5,
   units = "in"
@@ -181,12 +180,8 @@ naive_stripes <- ggplot(stripesdt, aes(xmin = -Inf, xmax = Inf, ymin = y - .5, y
   geom_rect(fill = "#f6f1ff") +
   coord_cartesian(xlim = c(0, 10))
 
-# specification of the plot to be plotted onto the stripes
-forest_plot <- (labels | risk1 | risk0 | fp) +
-  plot_layout(widths = c(1, 1, 1, 1.5))
-
 naive_plot <- naive_stripes + inset_element(
-  plot,
+  forest_plot,
   # where forest_plot needs to be inserted relative to naive_stripes
   l = 0, b = 0, r = 1, t = 1,
   align_to = "full"
@@ -280,7 +275,7 @@ magick::image_read("./figs/gg5.png") |>
   magick::image_ggplot(interpolate = TRUE)
 ```
 
-### Full fledged forest plot
+### Full-fledged forest plot
 
 Let us get a bit closer to [the simple forest plot](OneSimplePlot.qmd). Starting from scratch (keeping only `tsize`), we once again load the data and add relevant variables, including additional text variables.
 
@@ -311,7 +306,7 @@ dt <- fread("./data/SimpleFPdata.csv") |>
   )
 ```
 
-Again, we make plots for the individual columns bit notice that some empty titles are added. This is to make the individual columns align when patching. We also bring back a transparent x-axis on all columns for the same reason.
+Again, we make plots for the individual columns but notice that some empty titles are added. This is to make the individual columns align when patching. We also bring back a transparent x-axis on all columns for the same reason.
 
 ```{r}
 # column with labels
@@ -719,4 +714,21 @@ magick::image_read("./figs/gg8.png") |>
   magick::image_ggplot(interpolate = TRUE)
 ```
 
-Note that the various parameters, i.e., `tsize`, `base_size`, margins, relative widths, etc.,  generally need fine tuning. The values used in this example are not universally valid.
+Note that the various parameters, i.e., `tsize`, `base_size`, margins, relative widths, etc.,  generally need fine-tuning. The values used in this example are not universally valid.
+
+It would also have been prudent to specify transparent x-axes in the default theme, so that we would not have to repeat that over and over again:
+
+```{r}
+theme_set(
+  theme_void(base_size = 15) +
+    theme(
+      axis.line.x = element_line(color = "transparent"),
+      axis.text.x = element_text(color = "transparent"),
+      axis.ticks.x = element_line(color = "transparent"),
+      axis.ticks.length = unit(2, "mm")
+    )
+)
+
+```
+
+Then we would just need to reintroduce the color of the axis in the forest plot column.
