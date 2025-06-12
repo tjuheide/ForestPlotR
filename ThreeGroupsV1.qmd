@@ -81,10 +81,8 @@ tm <- forest_theme(
   ci_lwd = 3,
   ci_col = "#58508d",
   refline_gp = gpar(col = "grey"),
-  core = list(bg_params = list(fill = c("#ccc4e2",
-                                        "white",
-                                        "#f3eeff",
-                                        "white"))) # 4 alternating colors of stripes
+  # 4 alternating colors of stripes
+  core = list(bg_params = list(fill = c("#ccc4e2", "white", "#f3eeff", "white")))
 )
 
 p <- forest(
@@ -139,10 +137,6 @@ p <- edit_plot(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-fpthree1
-#| fig-cap: |
-#|   Forest plot with 3 exposure groups
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/fpthree1.png",
@@ -151,8 +145,5 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/fpthree1.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
-
+![Forest plot with 3 exposure groups](./figs/fpthree1.png){#fig-fpthree1}

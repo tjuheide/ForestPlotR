@@ -97,10 +97,6 @@ forest_plot <- (labels | risk1 | risk0 | fp) +
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-gg1
-#| fig-cap: |
-#|   Basic forest plot using `ggplot2` and `patchwork`
-
 ggsave(
   "./figs/gg1.png",
   forest_plot,
@@ -108,10 +104,9 @@ ggsave(
   height = 5,
   units = "in"
 )
-
-magick::image_read("./figs/gg1.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+
+![Basic forest plot using `ggplot2` and `patchwork`](./figs/gg1.png){#fig-gg1}
 
 So far so good, but there are no stripes. One observation before we add those: the second and third column are in principle made the same way so it would be sensible to construct these using a function, we will do that below.
 
@@ -134,7 +129,7 @@ colfun <- function(var, title){
     # adding rectangles spanning the entire x-axis for half the rows
     geom_rect(data = stripesdt,
               aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
-              fill = "#f6f1ff") +    geom_text(size = tsize) +
+              fill = "#f6f1ff") +
     geom_text(size = tsize) +
     ggtitle(title) +
     theme(plot.title = element_text(hjust = .5))
@@ -177,10 +172,6 @@ plot_stripes <- (labels_stripes | risk1_stripes | risk0_stripes | fp_stripes) +
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-gg2
-#| fig-cap: |
-#|   Forest plot with stripes
-
 ggsave(
   "./figs/gg2.png",
   plot_stripes,
@@ -188,16 +179,14 @@ ggsave(
   height = 5,
   units = "in"
 )
-
-magick::image_read("./figs/gg2.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Forest plot with stripes](./figs/gg2.png){#fig-gg2}
 
 Et voila! A forest plot which could in principle be presented as final.
 
 ### The slightly more advanced plot
 
-It might be necessary to introduce a few additional columns. Let us reload the data and tinker with some variables. Specifically, we want to have text variables combining numbers of events and at risk in each group, and also a text variable with risk ratios. For the sake of the example, we also want to cap the confidence intervals when they get below `0.5` or above `1.25`:
+It might be desirable to include a few additional columns. Let us reload the data and tinker with some variables. Specifically, we want to have text variables combining numbers of events and at risk in each group, and also a text variable with risk ratios. For the sake of the example, we also want to cap the confidence intervals when they get below `0.5` or above `1.25`:
 
 ```{r}
 rm(list = ls()[!(ls() %in% c("tsize", "colfun"))])
@@ -242,7 +231,7 @@ stripesdt <- dt |>
 
 ```
 
-We recreate the columns we had already made, plus columns with counts of events and individuals at risk, and risk ratios:
+We recreate the columns we had already made, and further make columns with counts of events and individuals at risk, and risk ratios:
 
 ```{r}
 # labels
@@ -338,10 +327,6 @@ finalplot <- (labels_wrap | eventsNrisk1 | eventsNrisk0 | riskRatiofp) +
 
 
 ```{r, echo = FALSE}
-#| label: fig-gg3
-#| fig-cap: |
-#|   Fully fledged forest plot
-
 ggsave(
   "./figs/gg3.png",
   finalplot,
@@ -349,9 +334,7 @@ ggsave(
   height = 5,
   units = "in"
 )
-
-magick::image_read("./figs/gg3.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Fully fledged forest plot](./figs/gg3.png){#fig-gg3}
 
 Note that the various parameters, i.e., `tsize`, `base_size`, relative widths, etc.,  generally need fine-tuning. The values used in this example are not universally valid.

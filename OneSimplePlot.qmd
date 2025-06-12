@@ -116,10 +116,6 @@ p <- forest(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-fp2
-#| fig-cap: |
-#|   Plot including all data
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/simpleplot2.png",
@@ -128,10 +124,8 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/simpleplot2.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Plot including all data](./figs/simpleplot2.png){#fig-fp2}
 
 ### Extra padding between columns
 
@@ -152,9 +146,6 @@ p <- forest(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-fp3
-#| fig-cap: |
-#|   Plot with added padding
 
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
@@ -164,10 +155,8 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/simpleplot3.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Plot with added padding](./figs/simpleplot3.png){#fig-fp3}
 
 ### Column headers
 
@@ -194,10 +183,6 @@ Notice how we shamelessly use the same, sometime empty, name for several columns
 If we once again run the `forest` function on these data we get @fig-fp4.
 
 ```{r, echo = FALSE}
-#| label: fig-fp4
-#| fig-cap: |
-#|   Plot with custom headers
-
 p <- forest(
   data = results[,c(1,11,2,3,11,4,5,11,6,10)],
   est = results$rr,
@@ -217,10 +202,9 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/simpleplot4.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+
+![Plot with custom headers](./figs/simpleplot4.png){#fig-fp4}
 
 ### Further headers
 
@@ -270,10 +254,6 @@ p <- add_border(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-fp5
-#| fig-cap: |
-#|   Plot with exposure group headers
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/simpleplot5.png",
@@ -283,9 +263,8 @@ ggplot2::ggsave(
   units = "in"
 )
 
-magick::image_read("./figs/simpleplot5.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Plot with exposure group headers](./figs/simpleplot5.png){#fig-fp5}
 
 #### Combined header for risk ratio and plot
 
@@ -303,10 +282,6 @@ p <- add_text(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-fp6
-#| fig-cap: |
-#|   Plot with header for risk ratios
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/simpleplot6.png",
@@ -315,10 +290,8 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/simpleplot6.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Plot with header for risk ratios](./figs/simpleplot6.png){#fig-fp6}
 
 ### Finishing touches
 
@@ -455,10 +428,6 @@ p <- edit_plot(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-fp7
-#| fig-cap: |
-#|   Finished forest plot with custom theme
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/simpleplot7.png",
@@ -467,7 +436,5 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/simpleplot7.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Finished forest plot with custom theme](./figs/simpleplot7.png){#fig-fp7}

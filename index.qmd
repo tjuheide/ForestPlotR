@@ -19,58 +19,27 @@ The website provides the code necessary to construct the following plots. Please
 
 #### A simple plot
 
-```{r, echo = FALSE}
-#| label: fig-simple
-#| fig-cap: |
-#|   [Simple forest plot of risk ratios](OneSimplePlot.qmd)
-
-magick::image_read("./figs/simpleplot7.png") |>
-  magick::image_ggplot(interpolate = TRUE)
-```
+![[Simple forest plot of risk ratios](OneSimplePlot.qmd)](./figs/simpleplot7.png){#fig-simple}
 
 #### A figure containing two forest plots
 
-```{r, echo = FALSE}
-#| label: fig-multiple
-#| fig-cap: |
-#|   [Forest plot including risk ratios and -differences](MultiplePlots.qmd)
-
-magick::image_read("./figs/multplot2.png") |>
-  magick::image_ggplot(interpolate = TRUE)
-```
+![[Forest plot including risk ratios and -differences](MultiplePlots.qmd)](./figs/multplot2.png){#fig-multiple}
 
 #### Several exposure groups, long format
 
-```{r, echo = FALSE}
-#| label: fig-threeGroupsLong
-#| fig-cap: |
-#|   [Forest plot with 3 exposure groups, long format](ThreeGroupsV1.qmd)
-
-magick::image_read("./figs/fpthree1.png") |>
-  magick::image_ggplot(interpolate = TRUE)
-```
+![[Forest plot with 3 exposure groups, long format](ThreeGroupsV1.qmd)](./figs/fpthree1.png){#fig-threeGroupsLong}
 
 #### Several exposure groups, wide format
 
-```{r, echo = FALSE}
-#| label: fig-threeGroupsWide
-#| fig-cap: |
-#|   [Forest plot with 3 exposure groups, wide format](ThreeGroupsV2.qmd)
-
-magick::image_read("./figs/fpthreevII2.png") |>
-  magick::image_ggplot(interpolate = TRUE)
-```
+![[Forest plot with 3 exposure groups, wide format](ThreeGroupsV2.qmd)](./figs/fpthreevII2.png){#fig-threeGroupsWide}
 
 #### The simple plot recreated using `ggplot2` and `patchwork`
 
-```{r, echo = FALSE}
-#| label: fig-ggpatch
-#| fig-cap: |
-#|   [The simple forest plot recreated using `ggplot2` and `patchwork`](ggplot2.qmd)
+![[The simple forest plot recreated using `ggplot2` and `patchwork`](ggplot2.qmd)](./figs/gg3.png){#fig-ggpatch}
 
-magick::image_read("./figs/gg3.png") |>
-  magick::image_ggplot(interpolate = TRUE)
-```
+
+
+
 
 \
 \

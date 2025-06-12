@@ -103,10 +103,6 @@ p <- forest(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-multfp1
-#| fig-cap: |
-#|   Forest plot with risk ratios and -differences
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/multplot1.png",
@@ -115,10 +111,9 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/multplot1.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+
+![Forest plot with risk ratios and -differences](./figs/multplot1.png){#fig-multfp1}
 
 ### Prettification ... well aesthetics are subjective anyway
 We will add some headers, some lines, center some text, make some bold face labels, and tamper with the colors and text sizes using a theme.
@@ -220,10 +215,6 @@ p <- edit_plot(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-multfp2
-#| fig-cap: |
-#|   Custom themed forest plot with risk ratios and -differences
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/multplot2.png",
@@ -232,8 +223,6 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/multplot2.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
 
+![Custom themed forest plot with risk ratios and -differences](./figs/multplot2.png){#fig-multfp2}

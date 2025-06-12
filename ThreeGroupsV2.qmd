@@ -120,8 +120,7 @@ tm <- forest_theme(
   # place the legend below the plot
   legend_position = "bottom",
   refline_gp = gpar(col = "grey"),
-  core = list(bg_params = list(fill = c("#e2f0fb",
-                                        "white")))
+  core = list(bg_params = list(fill = c("#e2f0fb", "white")))
 )
 
 p <- forest(
@@ -169,10 +168,6 @@ p <- edit_plot(
 ```
 
 ```{r, echo = FALSE}
-#| label: fig-fpthreevII2
-#| fig-cap: |
-#|   Forest plot with 3 exposure groups combined in one plot
-
 p_wh <- get_wh(plot = p, unit = "in")
 ggplot2::ggsave(
   "./figs/fpthreevII2.png",
@@ -181,8 +176,6 @@ ggplot2::ggsave(
   height = p_wh[2],
   units = "in"
 )
-
-magick::image_read("./figs/fpthreevII2.png") |>
-  magick::image_ggplot(interpolate = TRUE)
 ```
+![Forest plot with 3 exposure groups combined in one plot](./figs/fpthreevII2.png){#fig-fpthreevII2}
 
