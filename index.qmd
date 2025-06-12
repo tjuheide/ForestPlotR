@@ -68,7 +68,7 @@ magick::image_read("./figs/fpthreevII2.png") |>
 #| fig-cap: |
 #|   [The simple forest plot recreated using `ggplot2` and `patchwork`](ggplot2.qmd)
 
-magick::image_read("./figs/gg8.png") |>
+magick::image_read("./figs/gg3.png") |>
   magick::image_ggplot(interpolate = TRUE)
 ```
 
