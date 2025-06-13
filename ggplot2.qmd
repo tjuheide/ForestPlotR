@@ -29,7 +29,8 @@ theme_set(
       axis.line.x = element_line(color = "transparent"),
       axis.text.x = element_text(color = "transparent"),
       axis.ticks.x = element_line(color = "transparent"),
-      axis.ticks.length.x = unit(2, "mm")
+      axis.ticks.length.x = unit(2, "mm"),
+      plot.title = element_text(hjust = .5, face = "bold")
     )
 )
 
@@ -69,15 +70,12 @@ labels <- ggplot(dt, aes(x = 0, y = y, label = level, fontface = boldface)) +
 # column with risk estimates in the intervention group
 risk1 <- ggplot(dt, aes(x = 1, y = y, label = risk1)) +
   geom_text(size = tsize) +
-  ggtitle("Risk (95% CI) in the\nintervention group") +
-  # the column title is centered
-  theme(plot.title = element_text(hjust = .5))
+  ggtitle("Risk (95% CI) in the\nintervention group")
 
 # column with risk estimates in the control group
 risk0 <- ggplot(dt, aes(x = 1, y = y, label = risk0)) +
   geom_text(size = tsize) +
-  ggtitle("Risk (95% CI) in the\ncontrol group") +
-  theme(plot.title = element_text(hjust = .5))
+  ggtitle("Risk (95% CI) in the\ncontrol group")
 
 # forest plot of risk ratios
 fp <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
@@ -87,8 +85,7 @@ fp <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
   theme(axis.line.x = element_line(color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.ticks.x = element_line(color = "black"),
-        axis.ticks.length = unit(2, "mm"),
-        plot.title = element_text(hjust = .5)) +
+        axis.ticks.length = unit(2, "mm")) +
   ggtitle("\nRisk ratio with 95% CI")
 
 # patching the columns together
@@ -131,8 +128,7 @@ colfun <- function(var, title){
               aes(xmin = -Inf, xmax = Inf, ymin = y - .5, ymax = y + .5),
               fill = "#f6f1ff") +
     geom_text(size = tsize) +
-    ggtitle(title) +
-    theme(plot.title = element_text(hjust = .5))
+    ggtitle(title)
 
   return(col)
 }
@@ -160,8 +156,7 @@ fp_stripes <- ggplot(dt, aes(x = rr, xmin = lcl, xmax = ucl, y = y)) +
   theme(axis.line.x = element_line(color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.ticks.x = element_line(color = "black"),
-        axis.ticks.length.x = unit(2, "mm"),
-        plot.title = element_text(hjust = .5)) +
+        axis.ticks.length.x = unit(2, "mm")) +
   ggtitle("\nRisk ratio with 95% CI")
 
 
@@ -299,22 +294,19 @@ labels_wrap <- wrap_elements(
 # common headers are added for the intervention group columns
 eventsNrisk1 <- wrap_elements(
   (eventsN1 | risk1) +
-    plot_annotation(title = "Intervention group") &
-    theme(plot.title = element_text(hjust = .5, face = "bold"))
+    plot_annotation(title = "Intervention group")
 )
 
 # and the control group columns
 eventsNrisk0 <- wrap_elements(
   (eventsN0 | risk0) +
-    plot_annotation(title = "Control group") &
-    theme(plot.title = element_text(hjust = .5, face = "bold"))
+    plot_annotation(title = "Control group")
 )
 
 # and finally for the risk ratio columns
 riskRatiofp <- wrap_elements(
   (riskRatio | fp) +
-    plot_annotation(title = "Risk ratio (95% CI)") &
-    theme(plot.title = element_text(hjust = .5, face = "bold"))
+    plot_annotation(title = "Risk ratio (95% CI)")
 )
 
 # everything is patched up together to get the final plot.
